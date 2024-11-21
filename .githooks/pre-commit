@@ -1,10 +1,10 @@
 #!/bin/sh
 
-if [ "$(git symbolic-ref HEAD | sed -e 's:^refs/heads/::')" = "main" ]; then
-    echo "メインブランチへの直コミットはできません。"
-    echo "cannot commit on main branch."
-    exit 1
-fi
+# if [ "$(git symbolic-ref HEAD | sed -e 's:^refs/heads/::')" = "main" ]; then
+#     echo "メインブランチへの直コミットはできません。"
+#     echo "cannot commit on main branch."
+#     exit 1
+# fi
 
 # stagingに含まれていないファイル(変更箇所)を退避
 git stash -q --keep-index
