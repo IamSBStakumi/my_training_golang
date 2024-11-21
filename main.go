@@ -1,7 +1,7 @@
 package main
 
 import (
-	oapi "train/generated"
+	oapi "train/api/generated"
 	"train/internal/handler"
 
 	"github.com/labstack/echo/v4"
