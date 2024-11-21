@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: REST API
+  description: ""
+servers:
+  - url: http://localhost:7000/
+paths:
+  /version:
+    get:
+      description: "versionInfo"
+      summary: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  name:
+                    type: string
+                  version:
+                    type: string
+  /hello:
+    get:
+      description: "挨拶を返す"
+      summary: 挨拶を返す
+      operationId: sayHello
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string

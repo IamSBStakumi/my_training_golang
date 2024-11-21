@@ -1,0 +1,7 @@
+package: gen # package名を指定。import時に使用する
+output: ./generated/openapi.gen.go # 生成コードの出力先。generatedディレクトリが存在しないと失敗する
+generate:
+  echo-server: true # echoサーバーを使用する。他のサーバーを使用する場合、置き換える。
+  models: true # モデル（型定義）を作成するか否か
+output-options:
+  skip-prune: true
