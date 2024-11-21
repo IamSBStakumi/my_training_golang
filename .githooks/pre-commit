@@ -1,0 +1,101 @@
+#!/bin/sh
+
+if [ "$(git symbolic-ref HEAD | sed -e 's:^refs/heads/::')" = "main" ]; then
+    echo "メインブランチへの直コミットはできません。"
+    echo "cannot commit on main branch."
+    exit 1
+fi
+
+# stagingに含まれていないファイル(変更箇所)を退避
+git stash -q --keep-index
+
+echo "run formatter"
+
+# git管理のルートディレクトリに移動
+cd "$(git rev-parse --show-toplevel)"
+
+before_diff_bytes=$(git diff | wc -c)
+diff_files=$(git diff --name-only HEAD ./)
+err_count=0
+
+for diff_file in $diff_files
+do
+    if [ ${diff_file##*.} = "go" ]; then
+        # 存在するファイルのみ、フォーマッタを実行
+        if [ -e ${diff_file} ]; then
+            # gofmtコマンド実行し、実行結果をfmt_errに保存
+            fmt_err=$(gofmt -w $diff_file 2>&1)
+        fi
+
+        # エラーがあれば出力し、err_countの値を1増加する
+        if [ -n "$fmt_err" ]; then
+            echo $fmt_err
+            $((err_count=err_count+1))
+        fi
+    fi
+done
+
+# err_countが1以上の場合、処理を止める
+if [ $err_count -gt 0 ]; then
+    git stash pop -q
+    exit 1
+fi
+
+after_diff_bytes=$(git diff | wc -c)
+
+# gofmt実行前と実行後のgitファイル差分を比較
+diff_bytes=$((after_diff_bytes - $before_diff_bytes))
+
+# gofmt実行後に差分が大きくなっている場合、git addからやり直すようメッセージ表示
+if [ $diff_bytes -gt 0 ]; then
+    echo "\033[0;31m Check golang code format! \033[0;39m"
+    echo "自動フォーマットを行いました。再度git addから実行してください。"
+    git stash pop -q
+    exit 1
+fi
+
+echo "finish go fmt"
+echo "run go vet"
+
+# linterを実行し、実行結果をlint_errに格納
+lint_err=$(go vet ./ 2>&1)
+
+# linterの実行でエラーが生じた場合、エラーメッセージを表示し、処理を止める
+if [ -n "$lint_err" ]; then
+    echo "\033[0;31m go vet error \033[0;39m"
+    echo $lint_err
+    git stash pop -q
+    exit 1
+fi
+echo "finish go vet"
+echo "run revive"
+
+for diff_file in $diff_files
+do
+    if [ ${diff_file##*.} = "go" ]; then
+        # 存在するファイルのみ、reviveを実行
+        if [ -e ${diff_file} ]; then
+            # reviveコマンド実行し、実行結果をrv_errに保存
+            rv_err=$(revive -config reviveConfig.toml -formatter friendly $diff_file 2>&1)
+        fi
+
+        # エラーがあれば出力し、err_countの値を1増加する
+        if [ -n "$rv_err" ]; then
+            echo $rv_err
+            $((err_count=err_count+1))
+        fi
+    fi
+done
+
+# err_countが1以上の場合、処理を止める
+if [ $err_count -gt 0 ]; then
+		echo "\033[0;31m Check golang code format! \033[0;39m"
+    echo "lintエラーを修正してください。"
+    git stash pop -q
+    exit 1
+fi
+
+echo "finish revive"
+
+git stash pop -q
+exit 0

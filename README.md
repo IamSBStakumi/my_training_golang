@@ -12,11 +12,8 @@ go run main.go
 
 ## 使用方法
 
-API 起動後、以下のコマンドを実行することで PDF の作成が実行される。
-作成された PDF は compositedPDF-CUI 直下、createdPDF_W2Psample_1.pdf として作成される。
-
 ```bash
-curl -X POST http://localhost:5000/order
+curl http://localhost:7000/version
 ```
 
 ## linter, formatter
