@@ -8,10 +8,10 @@ import (
 
 type I interface {
 	GetVersion(ctx echo.Context) error
-	SayHello(ctx echo.Context)  error
+	Animal(ctx echo.Context) error
 }
 
-type Server struct {}
+type Server struct{}
 
 func NewHandler() I {
 	return &Server{}

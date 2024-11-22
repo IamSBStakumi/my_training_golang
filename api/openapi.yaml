@@ -24,11 +24,28 @@ paths:
                     type: string
                   version:
                     type: string
-  /hello:
+  /animal:
     get:
-      description: "挨拶を返す"
-      summary: 挨拶を返す
-      operationId: sayHello
+      description: "動物の判定"
+      summary: 足があるかどうか
+      operationId: animal
+      requestBody:
+        description: 動物の特徴
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "dog"
+                hasLegs:
+                  type: boolean
+                  example: true
+              required:
+                - name
+                - hasLegs
       responses:
         "200":
           description: OK

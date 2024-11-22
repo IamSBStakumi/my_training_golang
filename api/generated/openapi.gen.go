@@ -7,11 +7,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// AnimalJSONBody defines parameters for Animal.
+type AnimalJSONBody struct {
+	HasLegs bool   `json:"hasLegs"`
+	Name    string `json:"name"`
+}
+
+// AnimalJSONRequestBody defines body for Animal for application/json ContentType.
+type AnimalJSONRequestBody AnimalJSONBody
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// 挨拶を返す
-	// (GET /hello)
-	SayHello(ctx echo.Context) error
+	// 足があるかどうか
+	// (GET /animal)
+	Animal(ctx echo.Context) error
 
 	// (GET /version)
 	GetVersion(ctx echo.Context) error
@@ -22,12 +31,12 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// SayHello converts echo context to params.
-func (w *ServerInterfaceWrapper) SayHello(ctx echo.Context) error {
+// Animal converts echo context to params.
+func (w *ServerInterfaceWrapper) Animal(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.SayHello(ctx)
+	err = w.Handler.Animal(ctx)
 	return err
 }
 
@@ -68,7 +77,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/hello", wrapper.SayHello)
+	router.GET(baseURL+"/animal", wrapper.Animal)
 	router.GET(baseURL+"/version", wrapper.GetVersion)
 
 }

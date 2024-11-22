@@ -14,6 +14,8 @@ go run main.go
 
 ```bash
 curl http://localhost:7000/version
+
+curl -X GET -d "{"name": "Dog", "hasLegs": true}" http://localhost:7000/animal
 ```
 
 ## linter, formatter
